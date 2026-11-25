@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة التحكم | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ==================== القائمة الجانبية (Sidebar) ==================== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <!-- بطاقة الموظف والفرع الحالي -->
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <!-- قائمة الروابط الـ 11 -->
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html" class="active">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html">🏥 الفروع</a></li>
+        <li><a href="employees.html">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- ==================== المحتوى الرئيسي (Main Content) ==================== -->
+    <div class="main-content">
+      
+      <!-- الشريط العلوي (Topbar) -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>لوحة التحكم والإحصائيات الرئيسية</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 فرع مدينة نصر</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+          <a href="pos.html" class="btn btn-primary btn-sm">➕ فاتورة كاشير جديدة</a>
+        </div>
+      </header>
+
+      <!-- محتوى لوحة التحكم الداخلي -->
+      <main class="page-body">
+
+        <!-- 1. كروت الإحصائيات الـ 8 المطلوبة -->
+        <div class="cards-grid">
+          
+          <!-- كارت 1: إجمالي مبيعات اليوم -->
+          <div class="card">
+            <div class="card-info">
+              <div class="card-title">إجمالي مبيعات اليوم</div>
+              <div class="card-value" id="card-today-sales">0.00 ج.م</div>
+            </div>
+            <div class="card-icon">💰</div>
+          </div>
+
+          <!-- كارت 2: عدد فواتير اليوم -->
+          <div class="card">
+            <div class="card-info">
+              <div class="card-title">عدد الفواتير اليوم</div>
+              <div class="card-value" id="card-invoices-count">0</div>
+            </div>
+            <div class="card-icon">🧾</div>
+          </div>
+
+          <!-- كارت 3: عدد العملاء -->
+          <div class="card">
+            <div class="card-info">
+              <div class="card-title">إجمالي العملاء</div>
+              <div class="card-value" id="card-customers-count">0</div>
+            </div>
+            <div class="card-icon">👥</div>
+          </div>
+
+          <!-- كارت 4: عدد الأدوية -->
+          <div class="card">
+            <div class="card-info">
+              <div class="card-title">عدد الأدوية المسجلة</div>
+              <div class="card-value" id="card-medicines-count">0</div>
+            </div>
+            <div class="card-icon">💊</div>
+          </div>
+
+          <!-- كارت 5: أدوية اقتربت من النفاد (الكمية <= حد الطلب) -->
+          <div class="card" style="border-right: 4px solid var(--danger-color);">
+            <div class="card-info">
+              <div class="card-title">أدوية قاربت على النفاد</div>
+              <div class="card-value" style="color: var(--danger-color);" id="card-low-stock-count">0</div>
+            </div>
+            <div class="card-icon">⚠️</div>
+          </div>
+
+          <!-- كارت 6: أدوية اقتربت صلاحيتها -->
+          <div class="card" style="border-right: 4px solid var(--warning-color);">
+            <div class="card-info">
+              <div class="card-title">أدوية قريبة الانتهاء</div>
+              <div class="card-value" style="color: var(--warning-color);" id="card-near-expiry-count">0</div>
+            </div>
+            <div class="card-icon">⏳</div>
+          </div>
+
+          <!-- كارت 7: أدوية منتهية الصلاحية -->
+          <div class="card" style="border-right: 4px solid var(--danger-color);">
+            <div class="card-info">
+              <div class="card-title">أدوية منتهية الصلاحية</div>
+              <div class="card-value" style="color: var(--danger-color);" id="card-expired-count">0</div>
+            </div>
+            <div class="card-icon">🚫</div>
+          </div>
+
+          <!-- كارت 8: إجمالي الفروع -->
+          <div class="card">
+            <div class="card-info">
+              <div class="card-title">إجمالي فروع الصيدلية</div>
+              <div class="card-value" id="card-branches-count">0</div>
+            </div>
+            <div class="card-icon">🏥</div>
+          </div>
+
+        </div>
+
+        <!-- 2. جدول تنبيهات النواقص (الكمية <= حد الطلب) -->
+        <div class="table-box">
+          <div class="table-header">
+            <h3>⚠️ جدول تنبيهات الأدوية التي أوشكت على النفاد في الفرع</h3>
+            <a href="inventory.html" class="btn btn-outline btn-sm">عرض المخزون بالكامل ←</a>
+          </div>
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>اسم الدواء</th>
+                <th>الكمية المتاحة حالياً</th>
+                <th>حد إعادة الطلب المطلوب</th>
+                <th>مكان الرف</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="low-stock-table-body">
+              <!-- يتم ملؤه تلقائياً بواسطة JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 3. جدول آخر الفواتير المنفذة بالفرع -->
+        <div class="table-box">
+          <div class="table-header">
+            <h3>🧾 آخر الفواتير الصادرة بالفرع اليوم</h3>
+            <a href="pos.html" class="btn btn-primary btn-sm">فاتورة جديدة</a>
+          </div>
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>رقم الفاتورة</th>
+                <th>تاريخ الفاتورة</th>
+                <th>اسم العميل</th>
+                <th>الموظف المسؤول</th>
+                <th>طريقة الدفع</th>
+                <th>الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody id="recent-invoices-table-body">
+              <!-- يتم ملؤه تلقائياً بواسطة JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ملفات الجافاسكريبت البسيطة -->
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت بسيط لحساب الإحصائيات وعرض الجداول في لوحة التحكم
+    // =========================================================================
+    function loadDashboardData() {
+      // 1. جلب البيانات من جداول قاعدة البيانات
+      var invoices = getTable('INVOICE');
+      var customers = getTable('CUSTOMER');
+      var medicines = getTable('MEDICINE');
+      var branches = getTable('BRANCH');
+      var inventory = getTable('BRANCH_INVENTORY');
+
+      // 2. حساب إجمالي مبيعات اليوم
+      var todayTotalSales = 0;
+      for (var i = 0; i < invoices.length; i++) {
+        todayTotalSales += Number(invoices[i].total_amount);
+      }
+
+      // 3. فحص الأدوية التي اقتربت من النفاد (الكمية المتاحة <= حد الطلب)
+      var lowStockItems = [];
+      var expiredItems = [];
+      var nearExpiryItems = [];
+      var todayDate = new Date();
+
+      for (var j = 0; j < inventory.length; j++) {
+        var item = inventory[j];
+
+        // شرط النواقص:
+        if (Number(item.available_quantity) <= Number(item.reorder_level)) {
+          lowStockItems.push(item);
+        }
+
+        // شرط انتهاء الصلاحية:
+        var expDate = new Date(item.expiry_date_batch);
+        if (expDate < todayDate) {
+          expiredItems.push(item);
+        } else {
+          // فحص هل الصلاحية أقل من 90 يوماً
+          var diffDays = (expDate - todayDate) / (1000 * 60 * 60 * 24);
+          if (diffDays <= 90) {
+            nearExpiryItems.push(item);
+          }
+        }
+      }
+
+      // 4. وضع الأرقام في الكروت الـ 8
+      document.getElementById('card-today-sales').textContent = todayTotalSales.toFixed(2) + ' ج.م';
+      document.getElementById('card-invoices-count').textContent = invoices.length;
+      document.getElementById('card-customers-count').textContent = customers.length;
+      document.getElementById('card-medicines-count').textContent = medicines.length;
+      document.getElementById('card-low-stock-count').textContent = lowStockItems.length + ' أصناف';
+      document.getElementById('card-near-expiry-count').textContent = nearExpiryItems.length + ' دفعات';
+      document.getElementById('card-expired-count').textContent = expiredItems.length + ' أدوية';
+      document.getElementById('card-branches-count').textContent = branches.length;
+
+      // 5. ملء جدول تنبيهات النواقص
+      var lowStockTbody = document.getElementById('low-stock-table-body');
+      lowStockTbody.innerHTML = '';
+      if (lowStockItems.length === 0) {
+        lowStockTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">المخزون متوفر بالكامل ولا توجد نواقص 👍</td></tr>';
+      } else {
+        for (var k = 0; k < lowStockItems.length; k++) {
+          var row = lowStockItems[k];
+          lowStockTbody.innerHTML += `
+            <tr class="row-danger">
+              <td><strong>${row.medicine_name}</strong></td>
+              <td><span class="badge badge-red">${row.available_quantity} عبوة</span></td>
+              <td>${row.reorder_level}</td>
+              <td><code>${row.shelf_location}</code></td>
+              <td><span class="badge badge-red">⚠️ وصل لحد الطلب</span></td>
+            </tr>
+          `;
+        }
+      }
+
+      // 6. ملء جدول آخر الفواتير
+      var invoicesTbody = document.getElementById('recent-invoices-table-body');
+      invoicesTbody.innerHTML = '';
+      for (var m = 0; m < invoices.length; m++) {
+        var inv = invoices[m];
+        invoicesTbody.innerHTML += `
+          <tr>
+            <td><strong>#INV-${inv.invoice_id}</strong></td>
+            <td>${inv.invoice_date}</td>
+            <td>${inv.customer_name}</td>
+            <td>${inv.employee_name}</td>
+            <td><span class="badge badge-blue">${inv.payment_method}</span></td>
+            <td><strong>${Number(inv.total_amount).toFixed(2)} ج.م</strong></td>
+          </tr>
+        `;
+      }
+    }
+
+    // تشغيل الدالة تلقائياً عند فتح الصفحة
+    loadDashboardData();
+  </script>
+
+</body>
+</html>

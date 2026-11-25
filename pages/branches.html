@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الفروع | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html" class="active">🏥 الفروع</a></li>
+        <li><a href="employees.html">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>شبكة فروع صيدليات العزبي (BRANCH)</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 الفرع الحالي</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">➕ إضافة فرع جديد</button>
+        </div>
+      </header>
+
+      <main class="page-body">
+        
+        <div class="table-box">
+          <div class="table-header">
+            <h3>قائمة فروع الصيدلية والمدراء المسؤولين</h3>
+            <button class="btn btn-primary" onclick="openAddModal()">➕ إضافة فرع</button>
+          </div>
+
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>كود الفرع</th>
+                <th>اسم الفرع</th>
+                <th>الحالة</th>
+                <th>الهاتف</th>
+                <th>العنوان</th>
+                <th>مدير الفرع</th>
+                <th>تاريخ الإدارة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="branchesTableBody">
+              <!-- يملأ بالجافاسكريبت -->
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- نافذة إضافة / تعديل فرع -->
+  <div class="modal-overlay" id="branchModal">
+    <div class="modal-box">
+      <div class="modal-box-header">
+        <h3 id="modalTitle">إضافة فرع جديد</h3>
+        <button class="modal-box-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <form onsubmit="saveBranchForm(event)">
+        <div class="modal-box-body">
+          <input type="hidden" id="editBranchId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم الفرع:</label>
+              <input type="text" id="brName" class="form-control" required placeholder="مثال: فرع العزبي - المعادي">
+            </div>
+            <div class="form-group">
+              <label>حالة الفرع:</label>
+              <select id="brStatus" class="form-select">
+                <option value="نشط">نشط</option>
+                <option value="تحت التجديد">تحت التجديد</option>
+                <option value="مغلق مؤقتاً">مغلق مؤقتاً</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>رقم هاتف الفرع:</label>
+              <input type="text" id="brPhone" class="form-control" required placeholder="0224012345">
+            </div>
+            <div class="form-group">
+              <label>المحافظة:</label>
+              <input type="text" id="brGov" class="form-control" required placeholder="القاهرة">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>المدينة والشارع:</label>
+              <input type="text" id="brStreet" class="form-control" required placeholder="شارع النصر">
+            </div>
+            <div class="form-group">
+              <label>مدير الفرع (صيدلي):</label>
+              <select id="brManagerSelect" class="form-select"></select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>تاريخ تولي الإدارة:</label>
+            <input type="date" id="brManagerDate" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="modal-box-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ الفرع</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت بسيط لإدارة الفروع
+    // =========================================================================
+
+    function renderBranchesTable(list) {
+      var tbody = document.getElementById('branchesTableBody');
+      tbody.innerHTML = '';
+
+      for (var i = 0; i < list.length; i++) {
+        var b = list[i];
+        var badgeColor = b.branch_status === 'نشط' ? 'badge-green' : 'badge-yellow';
+
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#BR-${b.branch_id}</strong></td>
+            <td><strong>${b.branch_name}</strong></td>
+            <td><span class="badge ${badgeColor}">${b.branch_status}</span></td>
+            <td><code>${b.phone}</code></td>
+            <td>${b.governorate} - ${b.city} (${b.street || ''})</td>
+            <td><strong>${b.manager_name || 'صيدلي'}</strong></td>
+            <td>${b.manager_start_date}</td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="openEditModal(${b.branch_id})">✏️ تعديل</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteBranch(${b.branch_id})">🗑️ حذف</button>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function loadManagersDropdown() {
+      var employees = getTable('EMPLOYEE');
+      var select = document.getElementById('brManagerSelect');
+      select.innerHTML = '';
+      for (var i = 0; i < employees.length; i++) {
+        select.innerHTML += `<option value="${employees[i].employee_id}">${employees[i].employee_name} (${employees[i].job_title})</option>`;
+      }
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'إضافة فرع جديد';
+      document.getElementById('editBranchId').value = '';
+      document.getElementById('brName').value = '';
+      document.getElementById('brPhone').value = '';
+      document.getElementById('brGov').value = '';
+      document.getElementById('brStreet').value = '';
+      document.getElementById('brManagerDate').value = '2026-11-25';
+      loadManagersDropdown();
+      document.getElementById('branchModal').classList.add('active');
+    }
+
+    function openEditModal(branchId) {
+      var branches = getTable('BRANCH');
+      var b = branches.find(function(item) { return item.branch_id === branchId; });
+      if (!b) return;
+
+      document.getElementById('modalTitle').textContent = 'تعديل بيانات الفرع';
+      document.getElementById('editBranchId').value = b.branch_id;
+      document.getElementById('brName').value = b.branch_name;
+      document.getElementById('brStatus').value = b.branch_status;
+      document.getElementById('brPhone').value = b.phone;
+      document.getElementById('brGov').value = b.governorate;
+      document.getElementById('brStreet').value = b.street || '';
+      document.getElementById('brManagerDate').value = b.manager_start_date;
+      loadManagersDropdown();
+      document.getElementById('brManagerSelect').value = b.employee_id;
+
+      document.getElementById('branchModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('branchModal').classList.remove('active');
+    }
+
+    function saveBranchForm(event) {
+      event.preventDefault();
+      var branches = getTable('BRANCH');
+      var editId = document.getElementById('editBranchId').value;
+      var mgrSelect = document.getElementById('brManagerSelect');
+      var mgrName = mgrSelect.options[mgrSelect.selectedIndex].text.split('(')[0].trim();
+
+      var branchData = {
+        branch_name: document.getElementById('brName').value.trim(),
+        branch_status: document.getElementById('brStatus').value,
+        phone: document.getElementById('brPhone').value.trim(),
+        governorate: document.getElementById('brGov').value.trim(),
+        city: 'المركز',
+        street: document.getElementById('brStreet').value.trim(),
+        warehouse_id: 1,
+        employee_id: Number(mgrSelect.value),
+        manager_name: mgrName,
+        manager_start_date: document.getElementById('brManagerDate').value
+      };
+
+      if (editId) {
+        for (var i = 0; i < branches.length; i++) {
+          if (branches[i].branch_id === Number(editId)) {
+            branches[i].branch_name = branchData.branch_name;
+            branches[i].branch_status = branchData.branch_status;
+            branches[i].phone = branchData.phone;
+            branches[i].governorate = branchData.governorate;
+            branches[i].street = branchData.street;
+            branches[i].employee_id = branchData.employee_id;
+            branches[i].manager_name = branchData.manager_name;
+            branches[i].manager_start_date = branchData.manager_start_date;
+            break;
+          }
+        }
+        alert('✅ تم تعديل الفرع بنجاح');
+      } else {
+        branchData.branch_id = branches.length ? branches[branches.length - 1].branch_id + 1 : 1;
+        branches.push(branchData);
+        alert('✅ تمت إضافة الفرع بنجاح');
+      }
+
+      saveTable('BRANCH', branches);
+      closeModal();
+      renderBranchesTable(branches);
+    }
+
+    function deleteBranch(branchId) {
+      if (confirm('هل أنت متأكد من حذف هذا الفرع؟')) {
+        var branches = getTable('BRANCH');
+        var updated = branches.filter(function(b) { return b.branch_id !== branchId; });
+        saveTable('BRANCH', updated);
+        renderBranchesTable(updated);
+        alert('🗑️ تم الحذف بنجاح');
+      }
+    }
+
+    renderBranchesTable(getTable('BRANCH'));
+  </script>
+
+</body>
+</html>

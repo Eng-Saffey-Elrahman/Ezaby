@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>إدارة التوصيل | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html" class="active">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html">🏥 الفروع</a></li>
+        <li><a href="employees.html">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>إدارة ومتابعة طلبات الدليفري (DELIVERY_ORDER)</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 الفرع الحالي</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+        </div>
+      </header>
+
+      <main class="page-body">
+        
+        <div class="table-box">
+          <div class="table-header">
+            <!-- البحث -->
+            <input type="text" id="searchInput" class="search-box" placeholder="بحث باسم العميل أو الطيار..." oninput="filterDeliveries()">
+            
+            <!-- تصفية الحالة -->
+            <select id="statusFilter" class="form-select" style="width: 220px;" onchange="filterDeliveries()">
+              <option value="all">جميع الطلبات</option>
+              <option value="في الانتظار">في الانتظار (Pending)</option>
+              <option value="في الطريق">في الطريق (Out for Delivery)</option>
+              <option value="تم التوصيل">تم التوصيل (Delivered)</option>
+            </select>
+          </div>
+
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>كود التوصيل</th>
+                <th>رقم الفاتورة</th>
+                <th>اسم العميل</th>
+                <th>طيار الدليفري</th>
+                <th>رسوم التوصيل</th>
+                <th>وقت الخروج</th>
+                <th>حالة الطلب</th>
+                <th>توقيع العميل</th>
+                <th>تغيير الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="deliveriesTableBody">
+              <!-- يملأ بالجافاسكريبت -->
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت بسيط لإدارة طلبات الدليفري
+    // =========================================================================
+
+    function renderDeliveriesTable(list) {
+      var tbody = document.getElementById('deliveriesTableBody');
+      tbody.innerHTML = '';
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px;">لا توجد طلبات توصيل مطابقة</td></tr>';
+        return;
+      }
+
+      for (var i = 0; i < list.length; i++) {
+        var d = list[i];
+        
+        var badgeColor = 'badge-yellow';
+        if (d.delivery_status === 'في الطريق') badgeColor = 'badge-blue';
+        if (d.delivery_status === 'تم التوصيل') badgeColor = 'badge-green';
+
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#DEL-${d.delivery_id}</strong></td>
+            <td><strong>#INV-${d.invoice_id}</strong></td>
+            <td><strong>${d.customer_name}</strong></td>
+            <td>${d.driver_name}</td>
+            <td><strong>${Number(d.delivery_fees).toFixed(2)} ج.م</strong></td>
+            <td>${d.departure_time}</td>
+            <td><span class="badge ${badgeColor}">${d.delivery_status}</span></td>
+            <td><code>${d.customer_signature || 'غير مسجل'}</code></td>
+            <td>
+              ${d.delivery_status === 'في الانتظار' ? `
+                <button class="btn btn-primary btn-sm" onclick="changeStatus(${d.delivery_id}, 'في الطريق')">
+                  خروج للتوصيل 🛵
+                </button>
+              ` : ''}
+
+              ${d.delivery_status === 'في الطريق' ? `
+                <button class="btn btn-success btn-sm" onclick="changeStatus(${d.delivery_id}, 'تم التوصيل')">
+                  تم التسليم ✓
+                </button>
+              ` : ''}
+
+              ${d.delivery_status === 'تم التوصيل' ? `
+                <span style="color:green; font-weight:bold; font-size:12px;">مكتمل 👍</span>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // دالة تغيير حالة الطلب
+    function changeStatus(deliveryId, newStatus) {
+      var deliveries = getTable('DELIVERY_ORDER');
+      for (var i = 0; i < deliveries.length; i++) {
+        if (deliveries[i].delivery_id === deliveryId) {
+          deliveries[i].delivery_status = newStatus;
+          break;
+        }
+      }
+      saveTable('DELIVERY_ORDER', deliveries);
+      alert('✅ تم تحديث حالة الطلب إلى: ' + newStatus);
+      filterDeliveries();
+    }
+
+    // دالة التصفية والبحث
+    function filterDeliveries() {
+      var query = document.getElementById('searchInput').value.toLowerCase();
+      var status = document.getElementById('statusFilter').value;
+      var deliveries = getTable('DELIVERY_ORDER');
+
+      var filtered = deliveries.filter(function(d) {
+        var matchText = (d.customer_name && d.customer_name.toLowerCase().includes(query)) ||
+                         (d.driver_name && d.driver_name.toLowerCase().includes(query));
+        var matchStatus = (status === 'all') || (d.delivery_status === status);
+        return matchText && matchStatus;
+      });
+
+      renderDeliveriesTable(filtered);
+    }
+
+    renderDeliveriesTable(getTable('DELIVERY_ORDER'));
+  </script>
+
+</body>
+</html>

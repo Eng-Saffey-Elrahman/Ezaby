@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>التقارير المالية | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html">🏥 الفروع</a></li>
+        <li><a href="employees.html">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html" class="active">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>التقارير والإحصائيات الشاملة</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 الفرع الحالي</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+        </div>
+      </header>
+
+      <main class="page-body">
+        
+        <!-- أزرار التبديل بين التقارير الأربعة -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="showReport('sales', this)">💰 1. تقرير المبيعات</button>
+          <button class="btn btn-outline" onclick="showReport('bestseller', this)">🔥 2. الأكثر مبيعاً</button>
+          <button class="btn btn-outline" onclick="showReport('lowstock', this)">📉 3. تقرير النواقص</button>
+          <button class="btn btn-outline" onclick="showReport('expired', this)">🚫 4. منتهي الصلاحية</button>
+        </div>
+
+        <!-- 1. تقرير المبيعات -->
+        <div id="report-sales">
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-info">
+                <div class="card-title">إجمالي المبيعات المحققة</div>
+                <div class="card-value" id="repTotalSales">0.00 ج.م</div>
+              </div>
+              <div class="card-icon">💵</div>
+            </div>
+            <div class="card">
+              <div class="card-info">
+                <div class="card-title">عدد الفواتير الصادرة</div>
+                <div class="card-value" id="repInvoicesCount">0</div>
+              </div>
+              <div class="card-icon">🧾</div>
+            </div>
+          </div>
+
+          <div class="table-box">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>رقم الفاتورة</th>
+                  <th>تاريخ البيع</th>
+                  <th>اسم العميل</th>
+                  <th>الكاشير</th>
+                  <th>طريقة الدفع</th>
+                  <th>المبلغ الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody id="salesReportTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. تقرير الأكثر مبيعاً -->
+        <div id="report-bestseller" style="display: none;">
+          <div class="table-box">
+            <div class="table-header"><h3>🔥 الأدوية الأكثر طلباً ومبيعاً بالصيدلية</h3></div>
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>الترتيب</th>
+                  <th>اسم الدواء</th>
+                  <th>سعر الوحدة</th>
+                  <th>إجمالي الوحدات المباعة</th>
+                  <th>إجمالي الإيراد المحقق</th>
+                </tr>
+              </thead>
+              <tbody id="bestsellerTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. تقرير النواقص -->
+        <div id="report-lowstock" style="display: none;">
+          <div class="table-box">
+            <div class="table-header"><h3>⚠️ الأدوية التي قاربت على النفاد (الكمية الحالية ≤ الحد الأدنى)</h3></div>
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>اسم الدواء</th>
+                  <th>الكمية الحالية</th>
+                  <th>الحد الأدنى المطلوب</th>
+                  <th>مكان الرف</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="lowstockTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. تقرير منتهي الصلاحية -->
+        <div id="report-expired" style="display: none;">
+          <div class="table-box">
+            <div class="table-header"><h3>🚫 الأدوية منتهية الصلاحية الواجب إعدامها</h3></div>
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>اسم الدواء</th>
+                  <th>الكمية المنتهية</th>
+                  <th>تاريخ الانتهاء</th>
+                  <th>مكان الرف</th>
+                  <th>الإجراء</th>
+                </tr>
+              </thead>
+              <tbody id="expiredTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت مبسط للتقارير الأربعة
+    // =========================================================================
+
+    function showReport(repName, btnEl) {
+      // إخفاء جميع الأقسام
+      document.getElementById('report-sales').style.display = 'none';
+      document.getElementById('report-bestseller').style.display = 'none';
+      document.getElementById('report-lowstock').style.display = 'none';
+      document.getElementById('report-expired').style.display = 'none';
+
+      // إظهار القسم المختار
+      document.getElementById('report-' + repName).style.display = 'block';
+
+      // تحديث ألوان الأزرار
+      var buttons = document.querySelectorAll('.page-body .btn');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].className = 'btn btn-outline';
+      }
+      btnEl.className = 'btn btn-primary';
+    }
+
+    function generateAllReports() {
+      var invoices = getTable('INVOICE');
+      var inventory = getTable('BRANCH_INVENTORY');
+
+      // 1. تقرير المبيعات
+      var totalMoney = 0;
+      var salesTbody = document.getElementById('salesReportTbody');
+      salesTbody.innerHTML = '';
+
+      for (var i = 0; i < invoices.length; i++) {
+        var inv = invoices[i];
+        totalMoney += Number(inv.total_amount);
+        salesTbody.innerHTML += `
+          <tr>
+            <td><strong>#INV-${inv.invoice_id}</strong></td>
+            <td>${inv.invoice_date}</td>
+            <td>${inv.customer_name}</td>
+            <td>${inv.employee_name}</td>
+            <td><span class="badge badge-blue">${inv.payment_method}</span></td>
+            <td><strong>${Number(inv.total_amount).toFixed(2)} ج.م</strong></td>
+          </tr>
+        `;
+      }
+      document.getElementById('repTotalSales').textContent = totalMoney.toFixed(2) + ' ج.م';
+      document.getElementById('repInvoicesCount').textContent = invoices.length;
+
+      // 2. تقرير الأكثر مبيعاً
+      var bestMeds = [
+        { name: 'Panadol Advance 500mg', price: 35.0, qty: 25, revenue: 875.0 },
+        { name: 'Augmentin 1g Tablets', price: 120.0, qty: 15, revenue: 1800.0 },
+        { name: 'Cataflam 50mg', price: 55.0, qty: 12, revenue: 660.0 },
+        { name: 'Brufen 400mg', price: 42.0, qty: 10, revenue: 420.0 }
+      ];
+      var bestTbody = document.getElementById('bestsellerTbody');
+      bestTbody.innerHTML = '';
+      for (var b = 0; b < bestMeds.length; b++) {
+        var bm = bestMeds[b];
+        bestTbody.innerHTML += `
+          <tr>
+            <td><span class="badge ${b === 0 ? 'badge-red' : 'badge-gray'}">#${b + 1}</span></td>
+            <td><strong>${bm.name}</strong></td>
+            <td>${bm.price.toFixed(2)} ج.م</td>
+            <td><span class="badge badge-green">${bm.qty} عبوة</span></td>
+            <td><strong>${bm.revenue.toFixed(2)} ج.م</strong></td>
+          </tr>
+        `;
+      }
+
+      // 3. تقرير النواقص (الكمية <= حد الطلب)
+      var lowstockTbody = document.getElementById('lowstockTbody');
+      lowstockTbody.innerHTML = '';
+      for (var k = 0; k < inventory.length; k++) {
+        var item = inventory[k];
+        if (Number(item.available_quantity) <= Number(item.reorder_level)) {
+          lowstockTbody.innerHTML += `
+            <tr class="row-warning">
+              <td><strong>${item.medicine_name}</strong></td>
+              <td><strong style="color:red;">${item.available_quantity} عبوة</strong></td>
+              <td>${item.reorder_level}</td>
+              <td><code>${item.shelf_location}</code></td>
+              <td><span class="badge badge-red">⚠️ وصل لحد الطلب</span></td>
+            </tr>
+          `;
+        }
+      }
+
+      // 4. تقرير منتهي الصلاحية
+      var expiredTbody = document.getElementById('expiredTbody');
+      expiredTbody.innerHTML = '';
+      var today = new Date();
+      for (var e = 0; e < inventory.length; e++) {
+        var expItem = inventory[e];
+        if (new Date(expItem.expiry_date_batch) < today) {
+          expiredTbody.innerHTML += `
+            <tr class="row-danger">
+              <td><strong>${expItem.medicine_name}</strong></td>
+              <td>${expItem.available_quantity} عبوة</td>
+              <td><span class="badge badge-red">${expItem.expiry_date_batch}</span></td>
+              <td><code>${expItem.shelf_location}</code></td>
+              <td><span class="badge badge-yellow">سحب وإعدام فوري</span></td>
+            </tr>
+          `;
+        }
+      }
+    }
+
+    generateAllReports();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الموظفين | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html">🏥 الفروع</a></li>
+        <li><a href="employees.html" class="active">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>إدارة شؤون العاملين والموظفين (EMPLOYEE)</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 الفرع الحالي</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">➕ إضافة موظف جديد</button>
+        </div>
+      </header>
+
+      <main class="page-body">
+        
+        <div class="table-box">
+          <div class="table-header">
+            <input type="text" id="searchInput" class="search-box" placeholder="بحث بالاسم أو الرقم القومي..." oninput="searchEmployees()">
+            <button class="btn btn-primary" onclick="openAddModal()">➕ إضافة موظف</button>
+          </div>
+
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>كود الموظف</th>
+                <th>اسم الموظف</th>
+                <th>الرقم القومي (14 رقم)</th>
+                <th>الوظيفة</th>
+                <th>الفرع</th>
+                <th>الهاتف</th>
+                <th>الراتب</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="employeesTableBody">
+              <!-- يملأ بالجافاسكريبت -->
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- نافذة إضافة / تعديل موظف -->
+  <div class="modal-overlay" id="employeeModal">
+    <div class="modal-box">
+      <div class="modal-box-header">
+        <h3 id="modalTitle">إضافة موظف جديد</h3>
+        <button class="modal-box-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <form onsubmit="saveEmployeeForm(event)">
+        <div class="modal-box-body">
+          <input type="hidden" id="editEmpId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم الموظف رباعي:</label>
+              <input type="text" id="empName" class="form-control" required placeholder="مثال: أحمد مصطفى عبد الله">
+            </div>
+            <div class="form-group">
+              <label>الرقم القومي (14 رقم بدون تكرار):</label>
+              <input type="text" id="empNationalId" class="form-control" maxlength="14" minlength="14" required placeholder="29501010101234">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>الوظيفة:</label>
+              <select id="empJobTitle" class="form-select">
+                <option value="صيدلي أول">صيدلي أول</option>
+                <option value="صيدلي ثان">صيدلي ثان</option>
+                <option value="مدير فرع">مدير فرع</option>
+                <option value="مساعد صيدلي">مساعد صيدلي</option>
+                <option value="كاشير">كاشير</option>
+                <option value="طيار دليفري">طيار دليفري</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>الراتب الشهري (ج.م):</label>
+              <input type="number" id="empSalary" class="form-control" required placeholder="8000">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>رقم الهاتف:</label>
+              <input type="text" id="empPhone" class="form-control" required placeholder="01012345678">
+            </div>
+            <div class="form-group">
+              <label>الفرع المخصص:</label>
+              <select id="empBranchSelect" class="form-select" required></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-box-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ الموظف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت بسيط لإدارة الموظفين
+    // =========================================================================
+
+    function renderEmployeesTable(list) {
+      var tbody = document.getElementById('employeesTableBody');
+      tbody.innerHTML = '';
+
+      for (var i = 0; i < list.length; i++) {
+        var emp = list[i];
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#EMP-${emp.employee_id}</strong></td>
+            <td><strong>${emp.employee_name}</strong></td>
+            <td><code>${emp.national_id}</code></td>
+            <td><span class="badge badge-blue">${emp.job_title}</span></td>
+            <td>${emp.branch_name || 'فرع مدينة نصر'}</td>
+            <td>${emp.phone}</td>
+            <td><strong>${Number(emp.salary).toLocaleString()} ج.م</strong></td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="openEditModal(${emp.employee_id})">✏️ تعديل</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteEmployee(${emp.employee_id})">🗑️ حذف</button>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function loadBranchesDropdown() {
+      var branches = getTable('BRANCH');
+      var select = document.getElementById('empBranchSelect');
+      select.innerHTML = '';
+      for (var i = 0; i < branches.length; i++) {
+        select.innerHTML += `<option value="${branches[i].branch_id}">${branches[i].branch_name}</option>`;
+      }
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'إضافة موظف جديد';
+      document.getElementById('editEmpId').value = '';
+      document.getElementById('empName').value = '';
+      document.getElementById('empNationalId').value = '';
+      document.getElementById('empNationalId').disabled = false;
+      document.getElementById('empPhone').value = '';
+      document.getElementById('empSalary').value = '';
+      loadBranchesDropdown();
+      document.getElementById('employeeModal').classList.add('active');
+    }
+
+    function openEditModal(empId) {
+      var employees = getTable('EMPLOYEE');
+      var emp = employees.find(function(item) { return item.employee_id === empId; });
+      if (!emp) return;
+
+      document.getElementById('modalTitle').textContent = 'تعديل بيانات الموظف';
+      document.getElementById('editEmpId').value = emp.employee_id;
+      document.getElementById('empName').value = emp.employee_name;
+      document.getElementById('empNationalId').value = emp.national_id;
+      document.getElementById('empNationalId').disabled = true; // قفل الرقم القومي لأنه فريد
+      document.getElementById('empPhone').value = emp.phone;
+      document.getElementById('empJobTitle').value = emp.job_title;
+      document.getElementById('empSalary').value = emp.salary;
+      loadBranchesDropdown();
+      document.getElementById('empBranchSelect').value = emp.branch_id;
+
+      document.getElementById('employeeModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('employeeModal').classList.remove('active');
+    }
+
+    function saveEmployeeForm(event) {
+      event.preventDefault();
+      var employees = getTable('EMPLOYEE');
+      var editId = document.getElementById('editEmpId').value;
+      var nationalId = document.getElementById('empNationalId').value.trim();
+
+      // التحقق من أن الرقم القومي 14 رقم بالضبط
+      if (nationalId.length !== 14) {
+        alert('⚠️ يجب أن يتكون الرقم القومي من 14 رقماً!');
+        return;
+      }
+
+      // التحقق من عدم التكرار (Unique) عند الإضافة
+      if (!editId) {
+        var duplicate = employees.some(function(e) { return e.national_id === nationalId; });
+        if (duplicate) {
+          alert('❌ هذا الرقم القومي مسجل بالفعل لموظف آخر!');
+          return;
+        }
+      }
+
+      var branchSelect = document.getElementById('empBranchSelect');
+      var branchName = branchSelect.options[branchSelect.selectedIndex].text;
+
+      var empData = {
+        employee_name: document.getElementById('empName').value.trim(),
+        national_id: nationalId,
+        job_title: document.getElementById('empJobTitle').value,
+        salary: Number(document.getElementById('empSalary').value),
+        phone: document.getElementById('empPhone').value.trim(),
+        hire_date: '2026-11-25',
+        branch_id: Number(branchSelect.value),
+        branch_name: branchName
+      };
+
+      if (editId) {
+        for (var i = 0; i < employees.length; i++) {
+          if (employees[i].employee_id === Number(editId)) {
+            employees[i].employee_name = empData.employee_name;
+            employees[i].job_title = empData.job_title;
+            employees[i].salary = empData.salary;
+            employees[i].phone = empData.phone;
+            employees[i].branch_id = empData.branch_id;
+            employees[i].branch_name = empData.branch_name;
+            break;
+          }
+        }
+        alert('✅ تم تعديل بيانات الموظف بنجاح');
+      } else {
+        empData.employee_id = employees.length ? employees[employees.length - 1].employee_id + 1 : 1;
+        employees.push(empData);
+        alert('✅ تمت إضافة الموظف بنجاح');
+      }
+
+      saveTable('EMPLOYEE', employees);
+      closeModal();
+      renderEmployeesTable(employees);
+    }
+
+    function deleteEmployee(empId) {
+      if (confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+        var employees = getTable('EMPLOYEE');
+        var updated = employees.filter(function(e) { return e.employee_id !== empId; });
+        saveTable('EMPLOYEE', updated);
+        renderEmployeesTable(updated);
+        alert('🗑️ تم الحذف بنجاح');
+      }
+    }
+
+    function searchEmployees() {
+      var query = document.getElementById('searchInput').value.toLowerCase();
+      var employees = getTable('EMPLOYEE');
+      var filtered = employees.filter(function(e) {
+        return e.employee_name.toLowerCase().includes(query) || e.national_id.includes(query);
+      });
+      renderEmployeesTable(filtered);
+    }
+
+    renderEmployeesTable(getTable('EMPLOYEE'));
+  </script>
+
+</body>
+</html>

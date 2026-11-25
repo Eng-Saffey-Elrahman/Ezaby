@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>المخزن المركزي | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html" class="active">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html">🏥 الفروع</a></li>
+        <li><a href="employees.html">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>المستودعات والمخازن المركزية (CENTRAL_WAREHOUSE)</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 الفرع الحالي</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+        </div>
+      </header>
+
+      <main class="page-body">
+        
+        <!-- اختيار المستودع -->
+        <div class="table-box" style="padding: 20px;">
+          <div class="form-row" style="align-items: center; margin: 0;">
+            <div class="form-group" style="max-width: 400px;">
+              <label>اختر المستودع المركزي لعرض بياناته وأدويته:</label>
+              <select id="warehouseSelect" class="form-select" onchange="showWarehouseDetails()">
+                <!-- يملأ بالجافاسكريبت -->
+              </select>
+            </div>
+            
+            <div id="warehouseInfoBox" style="margin-right: 20px; font-size: 14px; color: var(--text-muted);">
+              <!-- بيانات المستودع تظهر هنا -->
+            </div>
+          </div>
+        </div>
+
+        <!-- جدول الأدوية المسندة لهذا المخزن -->
+        <div class="table-box">
+          <div class="table-header">
+            <h3>💊 الأدوية والمستحضرات المخزنة في هذا المستودع المركزي</h3>
+            <input type="text" id="medSearch" class="search-box" placeholder="بحث في أدوية المخزن..." oninput="filterWarehouseMeds()">
+          </div>
+
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>كود الدواء</th>
+                <th>اسم الدواء</th>
+                <th>التصنيف</th>
+                <th>المادة الفعالة</th>
+                <th>سعر البيع</th>
+                <th>تاريخ الصلاحية</th>
+              </tr>
+            </thead>
+            <tbody id="warehouseMedsBody">
+              <!-- تملأ بالجافاسكريبت -->
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت بسيط لصفحة المخزن المركزي
+    // =========================================================================
+    var currentWarehouseId = 1;
+
+    function initWarehousePage() {
+      var warehouses = getTable('CENTRAL_WAREHOUSE');
+      var select = document.getElementById('warehouseSelect');
+      select.innerHTML = '';
+
+      for (var i = 0; i < warehouses.length; i++) {
+        var w = warehouses[i];
+        select.innerHTML += `<option value="${w.warehouse_id}">${w.warehouse_name} (${w.governorate} - ${w.city})</option>`;
+      }
+
+      showWarehouseDetails();
+    }
+
+    function showWarehouseDetails() {
+      var selectedId = Number(document.getElementById('warehouseSelect').value);
+      currentWarehouseId = selectedId;
+      var warehouses = getTable('CENTRAL_WAREHOUSE');
+      var w = warehouses.find(function(item) { return item.warehouse_id === selectedId; });
+
+      if (w) {
+        document.getElementById('warehouseInfoBox').innerHTML = `
+          <strong>السعة الاستيعابية:</strong> <span class="badge badge-blue">${Number(w.capacity).toLocaleString()} عبوة</span> |
+          <strong>العنوان:</strong> ${w.governorate} - ${w.city} (${w.street || 'المنطقة الرئيسية'})
+        `;
+      }
+
+      loadWarehouseMeds();
+    }
+
+    function loadWarehouseMeds() {
+      var medicines = getTable('MEDICINE');
+      var filtered = medicines.filter(function(m) {
+        return m.warehouse_id === currentWarehouseId;
+      });
+
+      renderWarehouseMedsTable(filtered);
+    }
+
+    function renderWarehouseMedsTable(medsList) {
+      var tbody = document.getElementById('warehouseMedsBody');
+      tbody.innerHTML = '';
+
+      if (medsList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">لا توجد أدوية مسندة لهذا المستودع حالياً</td></tr>';
+        return;
+      }
+
+      for (var i = 0; i < medsList.length; i++) {
+        var m = medsList[i];
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#MED-${m.medicine_id}</strong></td>
+            <td><strong>${m.medicine_name}</strong></td>
+            <td><span class="badge badge-gray">${m.medicine_type || 'عام'}</span></td>
+            <td><code>${m.active_ingredient || '-'}</code></td>
+            <td><strong>${Number(m.price).toFixed(2)} ج.م</strong></td>
+            <td>${m.expiry_date}</td>
+          </tr>
+        `;
+      }
+    }
+
+    function filterWarehouseMeds() {
+      var query = document.getElementById('medSearch').value.toLowerCase();
+      var medicines = getTable('MEDICINE');
+      var filtered = medicines.filter(function(m) {
+        var matchWarehouse = m.warehouse_id === currentWarehouseId;
+        var matchName = m.medicine_name.toLowerCase().includes(query) || (m.active_ingredient && m.active_ingredient.toLowerCase().includes(query));
+        return matchWarehouse && matchName;
+      });
+      renderWarehouseMedsTable(filtered);
+    }
+
+    initWarehousePage();
+  </script>
+
+</body>
+</html>

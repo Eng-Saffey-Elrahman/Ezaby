@@ -1,0 +1,528 @@
+/* ==========================================================================
+   نظام إدارة صيدليات العزبي - ملف التنسيقات الرئيسي (CSS)
+   تم كتابة هذا الكود بأسلوب مبسط وسهل الفهم للطلاب والمبتدئين
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. المتغيرات العامة والألوان الأساسية (Colors & Variables)
+   -------------------------------------------------------------------------- */
+:root {
+  /* ألوان طبية مريحة للعين */
+  --primary-color: #0d9488;       /* الأخضر الطبي الأساسي */
+  --primary-dark: #0f766e;        /* أخضر داكن عند الوقوف بالماوس */
+  --primary-light: #ccfbf1;       /* أخضر فاتح للخلفيات والبادجات */
+  
+  --secondary-color: #0284c7;     /* أزرق إكلينيكي */
+  --secondary-light: #e0f2fe;
+
+  --danger-color: #ef4444;        /* أحمر للتنبيهات والأدوية المنتهية والنواقص */
+  --danger-light: #fee2e2;
+
+  --warning-color: #f59e0b;       /* برتقالي للأدوية قريبة الصلاحية */
+  --warning-light: #fef3c7;
+
+  --success-color: #10b981;       /* أخضر للعمليات الناجحة والمخزون الكافي */
+
+  /* ألوان النصوص والخلفيات */
+  --bg-page: #f8fafc;             /* خلفية الصفحة العامة (رمادي مائل للأبيض) */
+  --bg-white: #ffffff;            /* خلفية الكروت والجداول */
+  --sidebar-bg: #0f172a;          /* كحلي داكن جداً للقائمة الجانبية */
+  
+  --text-dark: #1e293b;           /* لون الخط الأساسي */
+  --text-muted: #64748b;          /* لون خط ثانوي خفيف */
+  --border-color: #e2e8f0;        /* لون حدود الجداول والإطارات */
+
+  --sidebar-width: 250px;         /* عرض القائمة الجانبية */
+  --radius: 8px;                  /* تدوير حواف الأزرار والكروت */
+}
+
+/* --------------------------------------------------------------------------
+   2. تصفير الهوامش والخطوط العامة (Reset)
+   -------------------------------------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-dark);
+  direction: rtl;                 /* الواجهة بالكامل من اليمين لليسار */
+  text-align: right;
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   3. تخطيط الصفحة (Layout)
+   -------------------------------------------------------------------------- */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* القائمة الجانبية */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--primary-color);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.brand-text h2 {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.brand-text span {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* بطاقة الموظف داخل القائمة */
+.sidebar-user {
+  padding: 12px 15px;
+  margin: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.user-info .name {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.user-info .role {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* روابط القائمة الجانبية */
+.sidebar-menu {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.menu-title {
+  font-size: 11px;
+  color: #64748b;
+  margin: 12px 10px 4px;
+  font-weight: bold;
+}
+
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  color: #cbd5e1;
+  font-size: 14px;
+  margin-bottom: 4px;
+  transition: 0.2s;
+}
+
+.sidebar-menu a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.sidebar-menu a.active {
+  background: var(--primary-color);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.sidebar-footer {
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.logout-btn:hover {
+  background: var(--danger-color);
+  color: #ffffff;
+}
+
+/* المنطقة الرئيسية (Main Content) */
+.main-content {
+  flex: 1;
+  margin-right: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+}
+
+/* الشريط العلوي */
+.topbar {
+  height: 65px;
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.topbar-title h1 {
+  font-size: 18px;
+  color: var(--text-dark);
+}
+
+.topbar-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.branch-badge {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.clock-display {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--bg-page);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+}
+
+/* مساحة المحتوى الداخلي */
+.page-body {
+  padding: 25px 30px;
+  flex: 1;
+}
+
+/* --------------------------------------------------------------------------
+   4. كروت الإحصائيات (Stat Cards)
+   -------------------------------------------------------------------------- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card-info .card-title {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.card-info .card-value {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--text-dark);
+}
+
+.card-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background: var(--bg-page);
+}
+
+/* --------------------------------------------------------------------------
+   5. الجداول والأشرطة (Tables)
+   -------------------------------------------------------------------------- */
+.table-box {
+  background: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.table-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.table-header h3 {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.search-box {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: 13px;
+  width: 250px;
+  outline: none;
+}
+
+.search-box:focus {
+  border-color: var(--primary-color);
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 14px;
+}
+
+.styled-table th {
+  background: #f1f5f9;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.styled-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.styled-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* تمييز النواقص باللون الأحمر */
+.row-danger {
+  background-color: #fef2f2 !important;
+}
+
+.row-warning {
+  background-color: #fffbeb !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. البادجات (Badges)
+   -------------------------------------------------------------------------- */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.badge-green { background: #dcfce7; color: #15803d; }
+.badge-red { background: #fee2e2; color: #b91c1c; }
+.badge-yellow { background: #fef3c7; color: #b45309; }
+.badge-blue { background: #e0f2fe; color: #0369a1; }
+.badge-gray { background: #f1f5f9; color: #475569; }
+
+/* --------------------------------------------------------------------------
+   7. الأزرار (Buttons)
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary { background: var(--primary-color); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+
+.btn-secondary { background: var(--secondary-color); color: #fff; }
+.btn-danger { background: var(--danger-color); color: #fff; }
+.btn-success { background: var(--success-color); color: #fff; }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-dark);
+}
+.btn-outline:hover { background: #f1f5f9; }
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   8. النماذج والحقول (Forms & Inputs)
+   -------------------------------------------------------------------------- */
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--text-dark);
+}
+
+.form-control, .form-select {
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: 14px;
+  outline: none;
+  background: #ffffff;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+}
+
+/* --------------------------------------------------------------------------
+   9. النوافذ المنبثقة البسيطة (Modals)
+   -------------------------------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-box {
+  background: #ffffff;
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-box-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-box-header h3 {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.modal-box-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.modal-box-body {
+  padding: 20px;
+}
+
+.modal-box-footer {
+  padding: 15px 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: #f8fafc;
+}

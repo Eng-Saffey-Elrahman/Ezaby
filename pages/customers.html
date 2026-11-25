@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>العملاء ونقاط الولاء | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html" class="active">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html">🏥 الفروع</a></li>
+        <li><a href="employees.html">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>سجل العملاء ونقاط الولاء (CUSTOMER)</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 الفرع الحالي</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">➕ إضافة عميل جديد</button>
+        </div>
+      </header>
+
+      <main class="page-body">
+        
+        <div class="table-box">
+          <div class="table-header">
+            <input type="text" id="searchInput" class="search-box" placeholder="بحث باسم العميل أو رقم الهاتف..." oninput="searchCustomers()">
+            <button class="btn btn-primary" onclick="openAddModal()">➕ إضافة عميل</button>
+          </div>
+
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>كود العميل</th>
+                <th>اسم العميل</th>
+                <th>رقم الهاتف</th>
+                <th>رصيد نقاط الولاء</th>
+                <th>المحافظة</th>
+                <th>المدينة</th>
+                <th>الشارع والتفاصيل</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <!-- يملأ بالجافاسكريبت -->
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- نافذة إضافة / تعديل عميل -->
+  <div class="modal-overlay" id="customerModal">
+    <div class="modal-box">
+      <div class="modal-box-header">
+        <h3 id="modalTitle">إضافة عميل جديد</h3>
+        <button class="modal-box-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <form onsubmit="saveCustomerForm(event)">
+        <div class="modal-box-body">
+          <input type="hidden" id="editCustId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم العميل بالكامل:</label>
+              <input type="text" id="custName" class="form-control" required placeholder="مثال: أحمد محمد علي">
+            </div>
+            <div class="form-group">
+              <label>رقم الهاتف:</label>
+              <input type="text" id="custPhone" class="form-control" required placeholder="01012345678">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>المحافظة:</label>
+              <input type="text" id="custGov" class="form-control" required placeholder="القاهرة">
+            </div>
+            <div class="form-group">
+              <label>المدينة:</label>
+              <input type="text" id="custCity" class="form-control" required placeholder="مدينة نصر">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>الشارع والعنوان التفصيلي للتوصيل:</label>
+            <input type="text" id="custStreet" class="form-control" placeholder="شارع عباس العقاد - عمارة 15">
+          </div>
+        </div>
+
+        <div class="modal-box-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ العميل</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت بسيط لإدارة العملاء
+    // =========================================================================
+
+    function renderCustomersTable(list) {
+      var tbody = document.getElementById('customersTableBody');
+      tbody.innerHTML = '';
+
+      for (var i = 0; i < list.length; i++) {
+        var c = list[i];
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#CUST-${c.customer_id}</strong></td>
+            <td><strong>${c.customer_name}</strong></td>
+            <td><code>${c.phone}</code></td>
+            <td><span class="badge badge-green" style="font-size:13px;">🎁 ${c.loyalty_points || 0} نقطة</span></td>
+            <td>${c.governorate}</td>
+            <td>${c.city}</td>
+            <td>${c.street || '-'}</td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="openEditModal(${c.customer_id})">✏️ تعديل</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${c.customer_id})">🗑️ حذف</button>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'إضافة عميل جديد';
+      document.getElementById('editCustId').value = '';
+      document.getElementById('custName').value = '';
+      document.getElementById('custPhone').value = '';
+      document.getElementById('custGov').value = '';
+      document.getElementById('custCity').value = '';
+      document.getElementById('custStreet').value = '';
+      document.getElementById('customerModal').classList.add('active');
+    }
+
+    function openEditModal(custId) {
+      var customers = getTable('CUSTOMER');
+      var c = customers.find(function(item) { return item.customer_id === custId; });
+      if (!c) return;
+
+      document.getElementById('modalTitle').textContent = 'تعديل بيانات العميل';
+      document.getElementById('editCustId').value = c.customer_id;
+      document.getElementById('custName').value = c.customer_name;
+      document.getElementById('custPhone').value = c.phone;
+      document.getElementById('custGov').value = c.governorate;
+      document.getElementById('custCity').value = c.city;
+      document.getElementById('custStreet').value = c.street || '';
+
+      document.getElementById('customerModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('customerModal').classList.remove('active');
+    }
+
+    function saveCustomerForm(event) {
+      event.preventDefault();
+      var customers = getTable('CUSTOMER');
+      var editId = document.getElementById('editCustId').value;
+
+      var custData = {
+        customer_name: document.getElementById('custName').value.trim(),
+        phone: document.getElementById('custPhone').value.trim(),
+        governorate: document.getElementById('custGov').value.trim(),
+        city: document.getElementById('custCity').value.trim(),
+        street: document.getElementById('custStreet').value.trim()
+      };
+
+      if (editId) {
+        for (var i = 0; i < customers.length; i++) {
+          if (customers[i].customer_id === Number(editId)) {
+            customers[i].customer_name = custData.customer_name;
+            customers[i].phone = custData.phone;
+            customers[i].governorate = custData.governorate;
+            customers[i].city = custData.city;
+            customers[i].street = custData.street;
+            break;
+          }
+        }
+        alert('✅ تم تعديل بيانات العميل بنجاح');
+      } else {
+        custData.customer_id = customers.length ? customers[customers.length - 1].customer_id + 1 : 1;
+        custData.loyalty_points = 0;
+        customers.push(custData);
+        alert('✅ تمت إضافة العميل بنجاح');
+      }
+
+      saveTable('CUSTOMER', customers);
+      closeModal();
+      renderCustomersTable(customers);
+    }
+
+    function deleteCustomer(custId) {
+      if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+        var customers = getTable('CUSTOMER');
+        var updated = customers.filter(function(c) { return c.customer_id !== custId; });
+        saveTable('CUSTOMER', updated);
+        renderCustomersTable(updated);
+        alert('🗑️ تم الحذف بنجاح');
+      }
+    }
+
+    function searchCustomers() {
+      var query = document.getElementById('searchInput').value.toLowerCase();
+      var customers = getTable('CUSTOMER');
+      var filtered = customers.filter(function(c) {
+        return c.customer_name.toLowerCase().includes(query) || c.phone.includes(query);
+      });
+      renderCustomersTable(filtered);
+    }
+
+    renderCustomersTable(getTable('CUSTOMER'));
+  </script>
+
+</body>
+</html>

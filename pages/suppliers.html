@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الموردين | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html" class="active">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html">🏥 الفروع</a></li>
+        <li><a href="employees.html">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>إدارة شركات الأدوية والموردين (SUPPLIER)</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 الفرع الحالي</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">➕ إضافة مورد جديد</button>
+        </div>
+      </header>
+
+      <main class="page-body">
+        
+        <div class="table-box">
+          <div class="table-header">
+            <!-- حقل البحث -->
+            <input type="text" id="searchInput" class="search-box" placeholder="بحث باسم الشركة أو البريد..." oninput="searchSuppliers()">
+            <button class="btn btn-primary" onclick="openAddModal()">➕ إضافة شركة موردة</button>
+          </div>
+
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>كود المورد</th>
+                <th>اسم الشركة الموردة</th>
+                <th>البريد الإلكتروني</th>
+                <th>أرقام الهواتف (SUPPLIER_PHONE)</th>
+                <th>العنوان والمحافظة</th>
+                <th>المخزن المرتبط</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="suppliersTableBody">
+              <!-- يتم ملؤه تلقائياً بواسطة JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ==================== نافذة إضافة / تعديل المورد (Modal) ==================== -->
+  <div class="modal-overlay" id="supplierModal">
+    <div class="modal-box">
+      <div class="modal-box-header">
+        <h3 id="modalTitle">إضافة مورد جديد</h3>
+        <button class="modal-box-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <form onsubmit="saveSupplierForm(event)">
+        <div class="modal-box-body">
+          <input type="hidden" id="editSupplierId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم الشركة الموردة:</label>
+              <input type="text" id="supName" class="form-control" required placeholder="مثال: شركة إيفا فارما">
+            </div>
+            <div class="form-group">
+              <label>البريد الإلكتروني:</label>
+              <input type="email" id="supEmail" class="form-control" required placeholder="contact@company.com">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>المحافظة:</label>
+              <input type="text" id="supGov" class="form-control" required placeholder="القاهرة">
+            </div>
+            <div class="form-group">
+              <label>المدينة:</label>
+              <input type="text" id="supCity" class="form-control" required placeholder="مدينة نصر">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 15px;">
+            <label>الشارع والعنوان التفصيلي:</label>
+            <input type="text" id="supStreet" class="form-control" placeholder="المنطقة الصناعية">
+          </div>
+
+          <!-- قسم إضافة أكثر من رقم هاتف (Add Phone Number) -->
+          <div class="form-group" style="margin-bottom: 15px;">
+            <label>أرقام الهواتف (جدول SUPPLIER_PHONE):</label>
+            <div id="phonesContainer" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- حقول الهواتف تضاف هنا -->
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" style="margin-top: 8px; width: fit-content;" onclick="addPhoneInput()">
+              ➕ إضافة رقم هاتف آخر (Add Phone Number)
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-box-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ البيانات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت بسيط لإدارة الموردين
+    // =========================================================================
+
+    // دالة عرض الموردين في الجدول
+    function renderSuppliersTable(suppliersList) {
+      var tbody = document.getElementById('suppliersTableBody');
+      tbody.innerHTML = '';
+
+      if (suppliersList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">لا يوجد موردين مطابقين للبحث</td></tr>';
+        return;
+      }
+
+      for (var i = 0; i < suppliersList.length; i++) {
+        var s = suppliersList[i];
+        
+        // تجميع أرقام الهواتف في بادجات صغيرة
+        var phonesHtml = '';
+        if (s.phones && s.phones.length > 0) {
+          for (var p = 0; p < s.phones.length; p++) {
+            phonesHtml += `<span class="badge badge-gray" style="margin-left:4px;">📞 ${s.phones[p]}</span>`;
+          }
+        } else {
+          phonesHtml = '<span style="color:#94a3b8;">لا يوجد</span>';
+        }
+
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#SUP-${s.supplier_id}</strong></td>
+            <td><strong>${s.company_name}</strong></td>
+            <td>${s.email}</td>
+            <td>${phonesHtml}</td>
+            <td>${s.governorate} - ${s.city} (${s.street || ''})</td>
+            <td><span class="badge badge-blue">مستودع #${s.warehouse_id}</span></td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="openEditModal(${s.supplier_id})">✏️ تعديل</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSupplier(${s.supplier_id})">🗑️ حذف</button>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // دالة إضافة حقل هاتف جديد في النموذج
+    function addPhoneInput(phoneValue) {
+      var container = document.getElementById('phonesContainer');
+      var div = document.createElement('div');
+      div.style.display = 'flex';
+      div.style.gap = '8px';
+      
+      div.innerHTML = `
+        <input type="text" class="form-control phone-input" placeholder="مثال: 0224849300" value="${phoneValue || ''}" required>
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    // دالة فتح نافذة الإضافة
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'إضافة مورد جديد';
+      document.getElementById('editSupplierId').value = '';
+      document.getElementById('supName').value = '';
+      document.getElementById('supEmail').value = '';
+      document.getElementById('supGov').value = '';
+      document.getElementById('supCity').value = '';
+      document.getElementById('supStreet').value = '';
+      
+      // تفريغ الهواتف وإضافة حقل فارغ واحد
+      document.getElementById('phonesContainer').innerHTML = '';
+      addPhoneInput('');
+
+      document.getElementById('supplierModal').classList.add('active');
+    }
+
+    // دالة فتح نافذة التعديل
+    function openEditModal(supplierId) {
+      var suppliers = getTable('SUPPLIER');
+      var s = suppliers.find(function(item) { return item.supplier_id === supplierId; });
+      if (!s) return;
+
+      document.getElementById('modalTitle').textContent = 'تعديل بيانات المورد';
+      document.getElementById('editSupplierId').value = s.supplier_id;
+      document.getElementById('supName').value = s.company_name;
+      document.getElementById('supEmail').value = s.email;
+      document.getElementById('supGov').value = s.governorate;
+      document.getElementById('supCity').value = s.city;
+      document.getElementById('supStreet').value = s.street || '';
+
+      // ملء أرقام الهواتف
+      document.getElementById('phonesContainer').innerHTML = '';
+      if (s.phones && s.phones.length > 0) {
+        for (var i = 0; i < s.phones.length; i++) {
+          addPhoneInput(s.phones[i]);
+        }
+      } else {
+        addPhoneInput('');
+      }
+
+      document.getElementById('supplierModal').classList.add('active');
+    }
+
+    // دالة إغلاق النافذة
+    function closeModal() {
+      document.getElementById('supplierModal').classList.remove('active');
+    }
+
+    // دالة حفظ بيانات المورد (إضافة أو تعديل)
+    function saveSupplierForm(event) {
+      event.preventDefault();
+
+      var suppliers = getTable('SUPPLIER');
+      var editId = document.getElementById('editSupplierId').value;
+
+      // جمع أرقام الهواتف من الحقول
+      var phoneInputs = document.querySelectorAll('.phone-input');
+      var phoneList = [];
+      for (var p = 0; p < phoneInputs.length; p++) {
+        var val = phoneInputs[p].value.trim();
+        if (val) phoneList.push(val);
+      }
+
+      // تجهيز الكائن
+      var supplierData = {
+        company_name: document.getElementById('supName').value.trim(),
+        email: document.getElementById('supEmail').value.trim(),
+        governorate: document.getElementById('supGov').value.trim(),
+        city: document.getElementById('supCity').value.trim(),
+        street: document.getElementById('supStreet').value.trim(),
+        warehouse_id: 1, // مستودع افتراضي
+        phones: phoneList
+      };
+
+      if (editId) {
+        // تعديل مورد موجود
+        for (var i = 0; i < suppliers.length; i++) {
+          if (suppliers[i].supplier_id === Number(editId)) {
+            suppliers[i].company_name = supplierData.company_name;
+            suppliers[i].email = supplierData.email;
+            suppliers[i].governorate = supplierData.governorate;
+            suppliers[i].city = supplierData.city;
+            suppliers[i].street = supplierData.street;
+            suppliers[i].phones = supplierData.phones;
+            break;
+          }
+        }
+        alert('✅ تم تعديل بيانات المورد بنجاح');
+      } else {
+        // إضافة مورد جديد مع رقم ID تلقائي
+        supplierData.supplier_id = suppliers.length ? suppliers[suppliers.length - 1].supplier_id + 1 : 1;
+        suppliers.push(supplierData);
+        alert('✅ تمت إضافة المورد الجديد بنجاح');
+      }
+
+      // حفظ في التخزين وإعادة رسم الجدول
+      saveTable('SUPPLIER', suppliers);
+      closeModal();
+      renderSuppliersTable(suppliers);
+    }
+
+    // دالة حذف مورد
+    function deleteSupplier(supplierId) {
+      if (confirm('هل أنت متأكد من حذف هذا المورد؟')) {
+        var suppliers = getTable('SUPPLIER');
+        var updated = suppliers.filter(function(s) {
+          return s.supplier_id !== supplierId;
+        });
+        saveTable('SUPPLIER', updated);
+        renderSuppliersTable(updated);
+        alert('🗑️ تم الحذف بنجاح');
+      }
+    }
+
+    // دالة البحث المباشر
+    function searchSuppliers() {
+      var query = document.getElementById('searchInput').value.toLowerCase();
+      var suppliers = getTable('SUPPLIER');
+      var filtered = suppliers.filter(function(s) {
+        return s.company_name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query);
+      });
+      renderSuppliersTable(filtered);
+    }
+
+    // تشغيل العرض عند فتح الصفحة
+    renderSuppliersTable(getTable('SUPPLIER'));
+  </script>
+
+</body>
+</html>

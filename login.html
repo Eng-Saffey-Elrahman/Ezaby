@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول | نظام صيدليات العزبي</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* تنسيق خاص بصفحة تسجيل الدخول */
+    body {
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .login-container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 420px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .login-header h2 {
+      color: #0d9488;
+      font-size: 24px;
+      margin-top: 10px;
+    }
+    .demo-accounts {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 13px;
+    }
+    .demo-btn {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: right;
+      font-size: 12px;
+    }
+    .demo-btn:hover {
+      background: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    
+    <!-- عنوان الصفحة وشعار الصيدلية -->
+    <div class="login-header">
+      <div style="font-size: 40px;">⚕</div>
+      <h2>صيدليات العزبي</h2>
+      <p style="color: #64748b; font-size: 13px;">نظام إدارة الصيدلية ونقطة البيع</p>
+    </div>
+
+    <!-- نموذج إدخال البيانات -->
+    <form onsubmit="handleLogin(event)">
+      
+      <!-- حقل الرقم القومي للموظف -->
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label>الرقم القومي للموظف (14 رقم):</label>
+        <input type="text" id="nationalIdInput" class="form-control" required placeholder="أدخل الرقم القومي">
+      </div>
+
+      <!-- حقل كلمة المرور -->
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label>كلمة المرور:</label>
+        <input type="password" id="passwordInput" class="form-control" required value="123456">
+      </div>
+
+      <!-- زر تسجيل الدخول -->
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
+        تسجيل الدخول ←
+      </button>
+
+    </form>
+
+    <!-- حسابات سريعة لتسهيل التجربة على الطالب والدكتور -->
+    <div class="demo-accounts">
+      <strong style="color: #475569;">حسابات تجريبية للموظفين من قاعدة البيانات:</strong>
+      
+      <button class="demo-btn" onclick="fillForm('29501010101234')">
+        👤 محمود رأفت علي (مدير فرع مدينة نصر #1)
+      </button>
+
+      <button class="demo-btn" onclick="fillForm('29602020202345')">
+        👤 محمد أحمد حسن (صيدلي أول - فرع العبور #7)
+      </button>
+    </div>
+
+  </div>
+
+  <!-- تضمين ملف قاعدة البيانات -->
+  <script src="js/database.js"></script>
+  
+  <script>
+    // دالة لملء الحقول تلقائياً عند الضغط على أي حساب تجريبي
+    function fillForm(nationalId) {
+      document.getElementById('nationalIdInput').value = nationalId;
+      document.getElementById('passwordInput').value = '123456';
+    }
+
+    // دالة تنفيذ تسجيل الدخول
+    function handleLogin(event) {
+      // منع الصفحة من إعادة التحميل الافتراضية
+      event.preventDefault();
+
+      var enteredNationalId = document.getElementById('nationalIdInput').value.trim();
+
+      // 1. جلب جدول الموظفين من قاعدة البيانات
+      var employees = getTable('EMPLOYEE');
+
+      // 2. البحث عن الموظف بالرقم القومي
+      var foundEmployee = employees.find(function(emp) {
+        return emp.national_id === enteredNationalId;
+      });
+
+      // 3. التحقق من وجود الموظف
+      if (!foundEmployee) {
+        alert('❌ عذراً، هذا الرقم القومي غير مسجل في جدول الموظفين!');
+        return;
+      }
+
+      // 4. حفظ بيانات الموظف والفرع تلقائياً في الجلسة (Session)
+      var sessionData = {
+        employee_id: foundEmployee.employee_id,
+        employee_name: foundEmployee.employee_name,
+        job_title: foundEmployee.job_title,
+        branch_id: foundEmployee.branch_id,
+        branch_name: foundEmployee.branch_name
+      };
+
+      setCurrentUser(sessionData);
+
+      // 5. التوجيه إلى صفحة لوحة التحكم
+      alert('✅ مرحباً بك يا دكتور/ ' + foundEmployee.employee_name);
+      window.location.href = 'pages/dashboard.html';
+    }
+  </script>
+
+</body>
+</html>

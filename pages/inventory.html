@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مخزون الفرع والجرد | نظام إدارة صيدليات العزبي</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">⚕</div>
+        <div class="brand-text">
+          <h2>صيدليات العزبي</h2>
+          <span>نظام الإدارة الشامل</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-user-name">محمود رأفت علي</div>
+          <div class="role" id="sidebar-user-role">مدير فرع</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <div class="menu-title">الرئيسية والمبيعات</div>
+        <li><a href="dashboard.html">📊 لوحة التحكم</a></li>
+        <li><a href="pos.html">🛒 نقطة البيع (POS)</a></li>
+        <li><a href="deliveries.html">🛵 إدارة التوصيل</a></li>
+
+        <div class="menu-title">المخازن والأدوية</div>
+        <li><a href="inventory.html" class="active">📦 مخزون الفرع</a></li>
+        <li><a href="medicines.html">💊 الأدوية والأصناف</a></li>
+        <li><a href="warehouse.html">🏢 المخزن المركزي</a></li>
+        <li><a href="suppliers.html">🤝 الموردين والشركات</a></li>
+
+        <div class="menu-title">الإدارة والتقارير</div>
+        <li><a href="customers.html">👥 العملاء ونقاط الولاء</a></li>
+        <li><a href="branches.html">🏥 الفروع</a></li>
+        <li><a href="employees.html">👨‍⚕️ الموظفين</a></li>
+        <li><a href="reports.html">📈 التقارير المالية</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logoutUser()">🚪 تسجيل الخروج</button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>جرد ومخزون الفرع المستقل (BRANCH_INVENTORY)</h1>
+        </div>
+        <div class="topbar-info">
+          <span class="branch-badge" id="topbar-branch-badge">🏥 الفرع الحالي</span>
+          <span class="clock-display" id="topbar-clock">00:00:00</span>
+        </div>
+      </header>
+
+      <main class="page-body">
+        
+        <!-- شريط التصفية واختيار الفرع -->
+        <div class="table-box" style="padding: 15px 20px;">
+          <div class="form-row" style="margin: 0; align-items: center;">
+            
+            <!-- 1. إمكانية اختيار الفرع -->
+            <div class="form-group" style="max-width: 320px;">
+              <label>1. اختر الفرع:</label>
+              <select id="branchSelect" class="form-select" onchange="loadBranchInventory()"></select>
+            </div>
+
+            <!-- 2. تصفية الحالة -->
+            <div class="form-group" style="max-width: 250px;">
+              <label>2. تصفية الحالة:</label>
+              <select id="statusFilter" class="form-select" onchange="filterInventory()">
+                <option value="all">جميع أدوية الفرع</option>
+                <option value="low_stock">⚠️ النواقص (الكمية ≤ حد الطلب)</option>
+                <option value="expired">🚫 أدوية منتهية الصلاحية</option>
+              </select>
+            </div>
+
+            <!-- 3. البحث -->
+            <div class="form-group" style="max-width: 260px;">
+              <label>3. بحث عن دواء:</label>
+              <input type="text" id="searchInput" class="form-control" placeholder="بحث بالاسم أو مكان الرف..." oninput="filterInventory()">
+            </div>
+
+          </div>
+        </div>
+
+        <!-- جدول المخزون -->
+        <div class="table-box">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>كود الجرد</th>
+                <th>اسم الدواء</th>
+                <th>الكمية المتاحة للبيع</th>
+                <th>حد إعادة الطلب</th>
+                <th>مكان الدواء على الرف</th>
+                <th>تاريخ صلاحية التشغيلة</th>
+                <th>حالة الرصيد والتنبيه</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+              <!-- يملأ بالجافاسكريبت -->
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <script src="../js/database.js"></script>
+  <script src="../js/app.js"></script>
+
+  <script>
+    // =========================================================================
+    // كود جافاسكريبت بسيط ومباشر لإدارة مخزون الفرع
+    // =========================================================================
+
+    function initInventoryPage() {
+      // ملء قائمة الفروع
+      var branches = getTable('BRANCH');
+      var branchSelect = document.getElementById('branchSelect');
+      branchSelect.innerHTML = '';
+      for (var i = 0; i < branches.length; i++) {
+        branchSelect.innerHTML += `<option value="${branches[i].branch_id}">${branches[i].branch_name}</option>`;
+      }
+
+      loadBranchInventory();
+    }
+
+    // دالة جلب مخزون الفرع المختار
+    function loadBranchInventory() {
+      var selectedBranchId = Number(document.getElementById('branchSelect').value);
+      var inventory = getTable('BRANCH_INVENTORY');
+
+      // تصفية أدوية هذا الفرع فقط
+      var branchItems = inventory.filter(function(item) {
+        return item.branch_id === selectedBranchId;
+      });
+
+      renderInventoryTable(branchItems);
+    }
+
+    // دالة رسم الجدول وتطبيق التنبيهات الحمراء
+    function renderInventoryTable(itemsList) {
+      var tbody = document.getElementById('inventoryTableBody');
+      tbody.innerHTML = '';
+
+      if (itemsList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">لا توجد أدوية مسجلة في هذا الفرع</td></tr>';
+        return;
+      }
+
+      var today = new Date();
+
+      for (var i = 0; i < itemsList.length; i++) {
+        var item = itemsList[i];
+        
+        // الشرط المطلوب: إظهار تنبيه أحمر إذا Available Quantity <= Reorder Level
+        var isLowStock = Number(item.available_quantity) <= Number(item.reorder_level);
+        var isExpired = new Date(item.expiry_date_batch) < today;
+
+        var rowClass = '';
+        var statusBadge = '<span class="badge badge-green">رصيد كافي</span>';
+
+        if (isExpired) {
+          rowClass = 'row-danger';
+          statusBadge = '<span class="badge badge-red">🚫 منتهي الصلاحية</span>';
+        } else if (isLowStock) {
+          rowClass = 'row-danger'; // إظهار سطر أحمر واضح
+          statusBadge = '<span class="badge badge-red">⚠️ خطر: وصل لحد الطلب</span>';
+        }
+
+        tbody.innerHTML += `
+          <tr class="${rowClass}">
+            <td><strong>#INV-${item.inventory_id}</strong></td>
+            <td><strong>${item.medicine_name}</strong></td>
+            <td>
+              <strong style="font-size:16px; color:${isLowStock ? 'red' : 'inherit'};">
+                ${item.available_quantity} عبوة
+              </strong>
+            </td>
+            <td>${item.reorder_level}</td>
+            <td><code>${item.shelf_location}</code></td>
+            <td>${item.expiry_date_batch}</td>
+            <td>${statusBadge}</td>
+          </tr>
+        `;
+      }
+    }
+
+    // دالة البحث والتصفية
+    function filterInventory() {
+      var selectedBranchId = Number(document.getElementById('branchSelect').value);
+      var query = document.getElementById('searchInput').value.toLowerCase();
+      var status = document.getElementById('statusFilter').value;
+      var inventory = getTable('BRANCH_INVENTORY');
+      var today = new Date();
+
+      var filtered = inventory.filter(function(item) {
+        // فحص الفرع
+        if (item.branch_id !== selectedBranchId) return false;
+
+        // فحص البحث بالنص
+        var matchText = item.medicine_name.toLowerCase().includes(query) || item.shelf_location.toLowerCase().includes(query);
+        if (!matchText) return false;
+
+        // فحص الحالة
+        if (status === 'low_stock') {
+          return Number(item.available_quantity) <= Number(item.reorder_level);
+        }
+        if (status === 'expired') {
+          return new Date(item.expiry_date_batch) < today;
+        }
+
+        return true;
+      });
+
+      renderInventoryTable(filtered);
+    }
+
+    initInventoryPage();
+  </script>
+
+</body>
+</html>
